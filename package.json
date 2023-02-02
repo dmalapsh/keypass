@@ -29,6 +29,7 @@
         "date-fns": "^2.15.0",
         "date-fns-timezone": "^0.1.4",
         "moment": "^2.27.0",
+        "v-jsoneditor": "^1.4.5",
         "vue-axios": "^2.1.5",
         "vue-head": "^2.2.0",
         "vue-image-crop-upload": "^2.5.0",

@@ -21,7 +21,6 @@ class AccessSampleController extends Controller
         $sample = AccessSample::find($id);
 
         $result = $sample->only('id', 'type_id', 'name', 'data');
-        $result['data'] = json_decode($result['data']);
 
         return response()->json($result);
     }
@@ -32,19 +31,19 @@ class AccessSampleController extends Controller
         $data = $input['data'];
         $type = AccessType::find($input['type_id']);
         $struct = json_decode($type->data, true);
-        $result = (new Validator)->run($struct, $data, $input['name']);
+//        $result = (new Validator)->run($struct, $data, $input['name']);
 
-        if (!($result['valid'] === 1)) {
-            return response()->json([
-                "Don't compolete valid!",
-                $result
-            ]);
-        }
+//        if (!($result['valid'] === 1)) {
+//            return response()->json([
+//                "Don't compolete valid!",
+//                $result
+//            ]);
+//        }
 
         $sample = AccessSample::create([
             'name' => $input['name'],
             'type_id' => $input['type_id'],
-            'data' => json_encode($input['data'])
+            'data' => $input['data']
         ]);
 
         $result = $sample->only('id', 'type_id', 'name', 'data');
@@ -57,19 +56,8 @@ class AccessSampleController extends Controller
         $input = $request->all();
         $sample = AccessSample::find($id);
 
-        $data = $input['data'];
-        $struct = json_decode($sample->access_type->data, true);
-        $result = (new Validator)->run($struct, $data, $input['name']);
-
-        if (!($result['valid'] === 1)) {
-            return response()->json([
-                "Don't compolete valid!",
-                $result
-            ]);
-        }
-
         $sample->name = $input['name'];
-        $sample->data = json_encode($input['data']);
+        $sample->data = $input['data'];
         $sample->save();
 
         $result = $sample->only('id', 'type_id', 'name', 'data');
@@ -82,7 +70,7 @@ class AccessSampleController extends Controller
 
         $result = $sample->only('id', 'type_id', 'name', 'data');
         $result['data'] = json_decode($result['data']);
-        
+
         $sample->delete();
         return response()->json($result);
     }

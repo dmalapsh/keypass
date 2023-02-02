@@ -40,9 +40,12 @@ class AccessController extends Controller
         return response()->json($result);
     }
 
-    public function update(Request $request, $client_id, $id){
+    public function update(Request $request, $client_id, Access $access){
         $input = $request->all();
-        $access = Access::where('client_id', $client_id)->find($id);
+//        dd($id, $client_id);
+//        $access = Access::find($id);
+
+        dd($access);
 
         $access->sample_id = $input['sample_id'];
         $access->name = $input['name'];
@@ -55,13 +58,8 @@ class AccessController extends Controller
         return response()->json($result);
     }
     public function destroy($client_id, $id){
-        $access = Access::where('client_id', $client_id)->find($id);
-
-        $result = $access->only('id', 'client_id', 'sample_id', 'name', 'data');
-        $result['data'] = json_decode($result['data']);
-
-        $access->delete();
-        return response()->json($result);
+        Access::destroy($id);
+        return response()->json('ok');
     }
 
     public function compil ($client_id, $id) {

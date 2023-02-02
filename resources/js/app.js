@@ -35,7 +35,7 @@ const router = new VueRouter({
 //  Помошник в операциях с датой
 Vue.use(helpers);
 
-// 
+//
 const moment = require('moment');
 moment.updateLocale("ru");
 require('moment/locale/ru');

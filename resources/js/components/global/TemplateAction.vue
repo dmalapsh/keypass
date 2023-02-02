@@ -12,9 +12,7 @@
             <GroupInputs label="Основное">
                 <Input v-model="objectData.name" label="Имя"></Input>
                 <Selector v-model="selectTypeIndex" @input="setTypeId" label="Выбор типа" :variants="types"></Selector>
-                <EachGroupInputs :item="currentType.data" @input="addObject" :value="objectData.data"
-                    label="Данные для заполнения">
-                </EachGroupInputs>
+                <v-jsoneditor v-model="data" :options="{mode:'code'}" height="500px"></v-jsoneditor>
                 <Button text="Сохранить" @b-click="addTemplate"></Button>
             </GroupInputs>
             <GroupInputs label="Важное">
@@ -25,13 +23,19 @@
 </template>
 
 <script>
+
+import VJsoneditor from 'v-jsoneditor'
 export default {
+    comments: {
+        VJsoneditor
+    },
     data() {
         return {
             types: [{ id: 1, name: ' ' }],
             selectTypeIndex: 0,
 
             currentType: {},
+            data: "",
 
             objectData: {},
             action: '',
@@ -45,16 +49,12 @@ export default {
         setAction() {
             this.action = this.$route.params.action
         },
-        addObject(e) {
-            this.$set(this.objectData.data, e.key, e.value)
-            // console.log(this)
-            console.log(this.objectData.data)
-        },
         loadTemplates() {
             if (this.action == 'edit') {
                 var url = `/api/sample/${this.$route.params.templateId}`
                 this.axios.get(url).then(response => {
                     this.objectData = response.data
+                    this.data = JSON.parse(response.data.data)
                     this.setParams();
                 }).catch(error => { this.$noty.info('Неудалось получить шаблон'); });
             }
@@ -110,7 +110,7 @@ export default {
                 this.axios.post(url, {
                     name: this.objectData.name,
                     type_id: this.objectData.type_id,
-                    data: this.objectData.data
+                    data: JSON.stringify(this.data)
                 }).then(response => {
                     if (Object.hasOwn(response.data, 1)) {
                         if (Object.hasOwn(response.data[1], 'valid')) {
@@ -132,7 +132,7 @@ export default {
                 this.axios.put(url, {
                     name: this.objectData.name,
                     type_id: this.objectData.type_id,
-                    data: this.objectData.data
+                    data: JSON.stringify(this.data)
                 }).then(response => {
                     this.onBack()
                 }).catch(error => {

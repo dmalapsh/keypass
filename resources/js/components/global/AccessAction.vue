@@ -141,7 +141,7 @@ export default {
                 });
             }
             else if (this.action == 'edit') {
-                var url = `/api/client/${this.$route.params.clientId}/access/${this.$route.params.clientId}`
+                var url = `/api/client/${this.$route.params.clientId}/access/${this.$route.params.accessId}`
                 this.axios.put(url, {
                     name: this.objectData.name,
                     client_id: this.objectData.client_id,
@@ -164,6 +164,7 @@ export default {
     },
     computed: {
         nameActivity() {
+            console.log(this.$route.params.accessId)
             if (this.action == 'create') {
                 return 'Создание доступа'
             }

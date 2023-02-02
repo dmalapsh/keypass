@@ -2,7 +2,7 @@
     <div class="activity">
         <div class="activity-header">
             <IconButton icon="close" @b-i-click="onBack"></IconButton>
-            <div class="activity-header-place-text">    
+            <div class="activity-header-place-text">
                 <p class="you-title-large">
                     {{ client.name }}
                 </p>
@@ -44,6 +44,7 @@ export default {
             let url = `/api/client/${this.$route.params.clientId}/access/${this.accesses[e.id].id}/compil`;
             this.axios.get(url).then(response => {
                 console.log(response.data);
+                axios.post('http://localhost:8005', response.data.data)
             }).catch(error => { this.$noty.info("Неудалось получить клиента"); });
         },
         editAccess(e) {
