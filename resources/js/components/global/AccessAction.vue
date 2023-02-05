@@ -12,12 +12,13 @@
             <GroupInputs label="Основное">
                 <Input v-model="objectData.name" label="Имя"></Input>
                 <Selector v-model="selectTypeIndex" @input="loadAccessTypeTemplates" label="Выбор типа"
-                    :variants="types">
+                          :variants="types">
                 </Selector>
                 <Selector v-model="selectTemplateIndex" @input="loadAccessTemplate" label="Выбор шаблона"
-                    :variants="templates"></Selector>
+                          :variants="templates"></Selector>
                 <GroupInputs v-if="dataField[0] != 'nodata'" label="Данные для заполнения">
-                    <Input v-for="(elem, index) in dataField" :key="index" v-model="objectData.data[elem]" :label="elem" ></Input>
+                    <Input v-for="(elem, index) in dataField" :key="index" v-model="objectData.data[elem]"
+                           :label="elem"></Input>
                 </GroupInputs>
                 <Button text="Сохранить" @b-click="addAccess"></Button>
             </GroupInputs>
@@ -29,13 +30,14 @@
 </template>
 
 <script>
-import { types } from 'util'
+import {types} from 'util'
+import route from "ziggy-js";
 
 export default {
     data() {
         return {
-            types: [{ id: 1, name: ' ' }],
-            templates: [{ id: 1, name: ' ' }],
+            types: [{id: 1, name: ' '}],
+            templates: [{id: 1, name: ' '}],
             currentTemplate: {},
 
             dataField: ["nodata"],
@@ -56,13 +58,15 @@ export default {
         },
         loadAccess() {
             if (this.action == 'edit') {
-                var url = `/api/client/${this.$route.params.clientId}/access/${this.$route.params.accessId}`
-                this.axios.get(url).then(response => {
-                    this.objectData = response.data
-                    this.setParams(this.objectData.sample_id)
-                }).catch(error => { this.$noty.info('Неудалось получить доступ'); });
-            }
-            else if (this.action == 'create') {
+
+                this.axios.get(route('access.show', {access: this.$route.params.accessId}))
+                    .then(response => {
+                        this.objectData = response.data
+                        this.setParams(this.objectData.sample_id)
+                    }).catch(error => {
+                    this.$noty.info('Неудалось получить доступ');
+                });
+            } else if (this.action == 'create') {
                 this.objectData = {
                     name: '',
                     client_id: this.$route.params.clientId,
@@ -74,7 +78,7 @@ export default {
         },
         setParams(sample) {
             var url = `/api/sample/${sample}`
-            this.axios.get(url).then(response => {
+            this.axios.get(route()).then(response => {
                 this.currentTemplate = response.data
 
                 let stringData = JSON.stringify(this.currentTemplate.data)
@@ -82,35 +86,25 @@ export default {
 
                 this.dataField = arrFileds;
 
-                for (let i = 0; i < this.types.length; i++) {
-                    if (this.types[i].id == response.data.type_id) {
-
-                        this.selectTypeIndex = i;
-
-                        var url = `/api/type/${this.types[this.selectTypeIndex].id}/sample`
-                        this.axios.get(url).then(response => {
-                            this.templates = response.data
-                            for (let i = 0; i < this.templates.length; i++) {
-                                if (this.templates[i].id == this.objectData.sample_id) {
-                                    this.selectTemplateIndex = i;
-                                }
-                            }
-                        }).catch(error => { this.$noty.info('Неудалось получить шаблоны'); });
-                    }
-                }
-            }).catch(error => { this.$noty.info('Неудалось получить шаблоны'); });
+            }).catch(error => {
+                this.$noty.info('Неудалось получить шаблоны');
+            });
         },
         loadAccessTypes() {
             var url = `/api/type/`
             this.axios.get(url).then(response => {
                 this.types = response.data
-            }).catch(error => { this.$noty.info('Неудалось получить типы'); });
+            }).catch(error => {
+                this.$noty.info('Неудалось получить типы');
+            });
         },
         loadAccessTypeTemplates() {
             var url = `/api/type/${this.types[this.selectTypeIndex].id}/sample`
             this.axios.get(url).then(response => {
                 this.templates = response.data
-            }).catch(error => { this.$noty.info('Неудалось получить шаблоны'); });
+            }).catch(error => {
+                this.$noty.info('Неудалось получить шаблоны');
+            });
         },
         loadAccessTemplate() {
             this.objectData.sample_id = this.templates[this.selectTemplateIndex].id;
@@ -124,12 +118,13 @@ export default {
                     this.objectData.data[field] = ''
                 }
                 this.dataField = arrFileds;
-            }).catch(error => { this.$noty.info('Неудалось получить шаблон'); });
+            }).catch(error => {
+                this.$noty.info('Неудалось получить шаблон');
+            });
         },
         addAccess() {
             if (this.action == 'create') {
-                var url = `/api/client/${this.$route.params.clientId}/access`
-                this.axios.post(url, {
+                this.axios.post(route('access.store'), {
                     name: this.objectData.name,
                     client_id: this.objectData.client_id,
                     sample_id: this.objectData.sample_id,
@@ -139,10 +134,9 @@ export default {
                 }).catch(error => {
                     this.$noty.info('Не удалось создать доступ');
                 });
-            }
-            else if (this.action == 'edit') {
+            } else if (this.action == 'edit') {
                 var url = `/api/client/${this.$route.params.clientId}/access/${this.$route.params.accessId}`
-                this.axios.put(url, {
+                this.axios.put(route('access.edit', {access: this.$route.params.accessId}), {
                     name: this.objectData.name,
                     client_id: this.objectData.client_id,
                     sample_id: this.objectData.sample_id,
@@ -158,22 +152,22 @@ export default {
             var url = `/api/client/${this.$route.params.clientId}/access/${this.$route.params.clientId}`
             this.axios.delete(url).then(response => {
                 this.onBack()
-            }).catch(error => { this.$noty.info('Неудалось удалить клиента'); });
+            }).catch(error => {
+                this.$noty.info('Неудалось удалить клиента');
+            });
         },
 
     },
     computed: {
         nameActivity() {
-            console.log(this.$route.params.accessId)
             if (this.action == 'create') {
                 return 'Создание доступа'
-            }
-            else if (this.action == 'edit') {
+            } else if (this.action == 'edit') {
                 return 'Редактирование доступа'
             }
         },
     },
-    created() {
+    mounted() {
         this.setAction()
         this.loadAccess()
         this.loadAccessTypes()

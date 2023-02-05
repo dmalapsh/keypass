@@ -9,23 +9,24 @@ use Illuminate\Http\Request;
 
 class AccessSampleController extends Controller
 {
-    public function index(){
-        $samples = AccessSample::all();
-        $result = [];
-        foreach($samples as $sample){
-            array_push($result, $sample->only('id', 'name'));
-        }
-        return response()->json($result);
+    public function index(Request $request)
+    {
+        $samples = AccessSample::when($request->client_id,
+            function ($query) use ($request) {
+                $query->where('client_id', $request->client_id);
+        })
+            ->get();
+        return response()->json($samples);
     }
-    public function show($id) {
+
+    public function show($id)
+    {
         $sample = AccessSample::find($id);
-
-        $result = $sample->only('id', 'type_id', 'name', 'data');
-
-        return response()->json($result);
+        return response()->json($sample);
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $input = $request->all();
 
         $data = $input['data'];
@@ -52,7 +53,8 @@ class AccessSampleController extends Controller
         return response()->json($result);
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $input = $request->all();
         $sample = AccessSample::find($id);
 
@@ -65,17 +67,15 @@ class AccessSampleController extends Controller
 
         return response()->json($result);
     }
-    public function destroy($id){
+
+    public function destroy($id)
+    {
         $sample = AccessSample::find($id);
-
-        $result = $sample->only('id', 'type_id', 'name', 'data');
-        $result['data'] = json_decode($result['data']);
-
-        $sample->delete();
-        return response()->json($result);
+        return response()->json('ok');
     }
 
-    public function valid($id) {
+    public function valid($id)
+    {
         $sample = AccessSample::find($id);
         $data = json_decode($sample->data, true);
         $struct = json_decode($sample->access_type->data, true);

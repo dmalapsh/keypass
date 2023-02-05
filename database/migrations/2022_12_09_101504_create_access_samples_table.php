@@ -13,7 +13,7 @@ class CreateAccessSamplesTable extends Migration
      */
     public function up()
     {
-        Schema::create('access_samples', function (Blueprint $table) {
+        Schema::create('access_templates', function (Blueprint $table) {
             $table->id();
             $table->foreignId('type_id')->constrained('access_types');
             $table->string('name');

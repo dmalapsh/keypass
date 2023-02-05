@@ -13,7 +13,7 @@
             <div class="table">
                 <TableElem v-for="(elem, index) in accesses" :key="index" :id="elem.id" :text="elem.name">
                     <IconButton :idData="{id: index}" icon="edit" @b-i-click="editAccess"></IconButton>
-                    <Button :idData="{id: index}" text="Войти" @b-click="signAccess"></Button>
+                    <Button :idData="{id: index}"@b-click="signAccess"></Button>
                 </TableElem>
             </div>
         </div>
@@ -21,7 +21,8 @@
 </template>
 
 <script>
-import IconButton from './elems/IconButton.vue';
+import route from "ziggy-js";
+
 export default {
     data() {
         return {
@@ -31,14 +32,15 @@ export default {
     },
     methods: {
         getDataApi() {
-            let url = `/api/client/${this.$route.params.clientId}`;
-            this.axios.get(url).then(response => {
+            // let url = `/api/clients/${this.$route.params.clientId}`;
+            this.axios.get(route(('clients.show', {client: 3}))).then(response => {
                 this.client = response.data;
             }).catch(error => { this.$noty.info("Неудалось получить клиента"); });
-            url = `/api/client/${this.$route.params.clientId}/access`;
+
+            // url = `/api/client/${this.$route.params.clientId}/access`;
             this.axios.get(url).then(response => {
                 this.accesses = response.data;
-            }).catch(error => { this.$noty.info("Неудалось получить доступы клиента"); });
+            }).catch(error => { this.$noty.info("Не удалось получить доступы клиента"); });
         },
         signAccess(e) {
             let url = `/api/client/${this.$route.params.clientId}/access/${this.accesses[e.id].id}/compil`;

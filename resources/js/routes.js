@@ -11,7 +11,7 @@ files.keys().map(key => {
 export const nativeroutes = [
     {
         path: '/',
-        redirect: '/app/client'
+        redirect: '/app/clients'
     },
     {
         path: '/login',
@@ -20,15 +20,19 @@ export const nativeroutes = [
     },
     {
         path: '/app',
-        redirect: '/app/client',
+        redirect: '/app/clients',
         component: Components.MainPage,
         children: [
             {
-                path: 'client',
-                component: Components.Client,
+                path: 'clients',
+                component: Components.Clients,
             },
             {
-                path: 'client/action/:action',
+                path: 'clients/:id',
+                component: Components.ClientAction,
+            },
+            {
+                path: 'client/:clientId/action/:action',
                 component: Components.ClientAction,
             },
             {

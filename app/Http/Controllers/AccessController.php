@@ -7,45 +7,31 @@ use Illuminate\Http\Request;
 
 class AccessController extends Controller
 {
-    public function index($client_id){
-        $accesses = Access::where('client_id', $client_id)->get();
-        $result = [];
-        foreach($accesses as $access){
-            array_push($result, $access->only('id', 'name'));
+    public function index(Request $request){
+        $accessesQuery = Access::query();
+        if ($request->clint_id){
+            $accessesQuery->where('client_id', $request->clint_id);
         }
-        return response()->json($result);
+
+        $accessesQuery->when($request->clint_id, function ($query) use ($request) {
+            $query->where('client_id', $request->clint_id);
+        });
+
+        return response()->json($accessesQuery->get());
     }
-    public function show($client_id, $id) {
-        $access = Access::where('client_id', $client_id)->find($id);
-
-        $result = $access->only('id', 'client_id', 'sample_id', 'name', 'data');
-        $result['data'] = json_decode($result['data']);
-
-        return response()->json($result);
+    public function show($id) {
+        $access = Access::find($id);
+        return response()->json($access);
     }
 
     public function store(Request $request, $client_id) {
         $input = $request->all();
-
-        $access = Access::create([
-            'name' => $input['name'],
-            'sample_id' => $input["sample_id"],
-            'client_id' => $client_id,
-            'data' => json_encode($input['data'])
-        ]);
-
-        $result = $access->only('id', 'client_id', 'sample_id', 'name', 'data');
-        $result['data'] = json_decode($result['data']);
-
+        $result = Access::create($input);
         return response()->json($result);
     }
 
-    public function update(Request $request, $client_id, Access $access){
+    public function update(Request $request, Access $access){
         $input = $request->all();
-//        dd($id, $client_id);
-//        $access = Access::find($id);
-
-        dd($access);
 
         $access->sample_id = $input['sample_id'];
         $access->name = $input['name'];
@@ -68,7 +54,7 @@ class AccessController extends Controller
         $sample = $access->access_sample->data;
 
         foreach ($payloads as $key => $payload) {
-            $regex =  '/'."%{$key}%".'/';
+            $regex =  "/%{$key}%/";
             $sample = preg_replace_callback($regex, function ($match) use ($key, $payload) {
                 return "{$payload}";
             }, $sample);

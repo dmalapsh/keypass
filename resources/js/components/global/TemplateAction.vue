@@ -58,16 +58,6 @@ export default {
                     this.setParams();
                 }).catch(error => { this.$noty.info('Неудалось получить шаблон'); });
             }
-            else if (this.action == 'create') {
-                console.log('create')
-                this.objectData = {
-                    name: '',
-                    type_id: 1,
-                    data: {}
-                }
-                this.setParams();
-
-            }
         },
         setParams() {
             var url = `/api/type/`

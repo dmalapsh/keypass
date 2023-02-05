@@ -9,38 +9,26 @@ class ClientController extends Controller
 {
     public function index(){
         $clients = Client::all();
-        $result = [];
-        foreach ($clients as $client) {
-            array_push($result, $client->only('id', 'name'));
-        }
-        return response()->json($result);
+        return response()->json($clients);
     }
-    public function show($id) {
-        $client = Client::find($id);
-        $result = $client->only('id', 'name');
-        return response()->json($result);
+    public function show(Client $client) {
+        return response()->json($client);
     }
 
     public function store(Request $request) {
         $input = $request->all();
-        $client = Client::create([
-            'name' => $input['name']
-        ]);
-        return response()->json($client->only('id', 'name'));
+        $client = Client::create($input);
+        return response()->json($client);
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, Client $client){
         $input = $request->all();
-        $client = Client::find($id);
-        $client->name = $input['name'];
-        $client->save();
-        return response()->json($client->only('id', 'name'));
+        $client->update($input);
+        return response()->json($client);
     }
     public function destroy($id){
-        $client = Client::find($id);
-        $result = $client->only('id', 'name');
-        $client->delete();
-        return response()->json($result);
+        Client::destroy($id);
+        return response()->json('ok');
     }
 
 }
